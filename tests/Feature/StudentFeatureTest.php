@@ -10,8 +10,7 @@ class StudentFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function student_can_be_created()
+    public function test_student_can_be_created()
     {
         $response = $this->postJson('/students', [
             'name' => 'Gourav Choudhary',
@@ -27,8 +26,7 @@ class StudentFeatureTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function validation_fails_when_required_fields_are_missing()
+    public function test_validation_fails_when_required_fields_are_missing()
     {
         $response = $this->postJson('/students', []);
 
@@ -36,11 +34,10 @@ class StudentFeatureTest extends TestCase
                  ->assertJsonValidationErrors(['name', 'age', 'mark']);
     }
 
-    /** @test */
-    public function student_result_is_fail_when_mark_is_below_40()
+    public function test_student_result_is_fail_when_mark_is_below_40()
     {
         $this->postJson('/students', [
-            'name' => 'Joni',
+            'name' => 'Kala',
             'age'  => 20,
             'mark' => 30,
         ]);
@@ -51,8 +48,7 @@ class StudentFeatureTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function student_can_be_updated()
+    public function test_student_can_be_updated()
     {
         $student = Student::factory()->create([
             'mark' => 30,
@@ -73,8 +69,7 @@ class StudentFeatureTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function student_can_be_deleted()
+    public function test_student_can_be_deleted()
     {
         $student = Student::factory()->create();
 
@@ -87,8 +82,7 @@ class StudentFeatureTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function students_can_be_sorted_by_mark()
+    public function test_students_can_be_sorted_by_mark()
     {
         Student::factory()->create(['mark' => 20]);
         Student::factory()->create(['mark' => 90]);
@@ -99,8 +93,7 @@ class StudentFeatureTest extends TestCase
         $response->assertSee('90');
     }
 
-    /** @test */
-    public function students_can_be_searched_by_name()
+    public function test_students_can_be_searched_by_name()
     {
         Student::factory()->create(['name' => 'Gourav']);
         Student::factory()->create(['name' => 'Choudhary']);
@@ -109,11 +102,10 @@ class StudentFeatureTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Gourav')
-                 ->assertDontSee('Choudahry');
+                 ->assertDontSee('Choudhary');
     }
 
-    /** @test */
-    public function students_are_paginated()
+    public function test_students_are_paginated()
     {
         Student::factory()->count(20)->create();
 
