@@ -3,13 +3,27 @@
     let currentDirection = 'asc';
     let currentPage = 1;
     let currentSearch = '';
-
+    // add csrf token ajax request 
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+    // Sweet alert toaster
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
 
+
+    // Update current url as per sort or search and pagination
     function updateUrl() {
         const params = new URLSearchParams();
 
@@ -33,7 +47,7 @@
         }, 400);
     });
 
-
+    // fetch student list 
     function loadStudents(page = 1) {
         $.get('/students-list', {
             sort: currentSort,
@@ -141,7 +155,11 @@
                 success: function(res) {
                     $('#studentModal').addClass('hidden');
                     loadStudents();
-                    toast(res.message, 'success');
+                    Toast.fire({
+                        icon: 'success',
+                        title: res.message
+                    });
+
                 },
                 error: function(xhr) {
                     if (xhr.status === 422) {
@@ -149,40 +167,53 @@
                         if (errors.name) $('#error-name').text(errors.name[0]);
                         if (errors.age) $('#error-age').text(errors.age[0]);
                         if (errors.mark) $('#error-mark').text(errors.mark[0]);
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Something went wrong'
+                        });
+
                     }
                 }
             });
         });
 
         $(document).on('click', '.delete', function() {
-            if (!confirm('Delete this student?')) return;
-            $.ajax({
-                url: `/students/${$(this).data('id')}`,
-                type: 'DELETE',
-                success: function(res) {
-                    loadStudents();
-                    toast(res.message, 'success');
+            let id = $(this).data('id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This student will be permanently deleted!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, delete it'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/students/${id}`,
+                        type: 'DELETE',
+                        success: function(response) {
+                            loadStudents(currentPage);
+
+                            Toast.fire({
+                                icon: 'success',
+                                title: response.message
+                            });
+                        },
+                        error: function() {
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'Delete failed'
+                            });
+                        }
+                    });
                 }
             });
         });
 
 
-
-
-
     });
-
-    function toast(message, type = 'success') {
-        let toast = $('#toast');
-        toast
-            .removeClass('hidden bg-green-600 bg-red-600')
-            .addClass(type === 'success' ? 'bg-green-600' : 'bg-red-600')
-            .text(message);
-
-        setTimeout(() => {
-            toast.addClass('hidden');
-        }, 3000);
-    }
 
     // AJAX Pagination for student  data fetch
     $(document).on('click', '.pagination a', function(e) {

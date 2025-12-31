@@ -7,6 +7,8 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body class="bg-gray-100 p-6">
@@ -80,9 +82,6 @@
             </form>
         </div>
     </div>
-
-    <!-- This is tost message -->
-    <div id="toast" class="hidden fixed top-5 right-5 px-4 py-3 rounded shadow text-white"></div>
 
     <!-- This loader code -->
     <div id="loader"
